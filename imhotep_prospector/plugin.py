@@ -6,6 +6,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 class Prospector(Tool):
     response_format = re.compile(r'(?P<filename>.*):(?P<line_num>\d+):'
                                  '(?P<message>.*)')
@@ -56,21 +57,18 @@ class Prospector(Tool):
 
         """
         retval = defaultdict(lambda: defaultdict(list))
-        extensions = ' -o '.join(['-name "*%s"' % ext for ext in
-                                  self.get_file_extensions()])
+
         log.debug("Here's the files passed in: %s", filenames)
-        for filename in filenames:
-            cmd = 'find %s/%s | xargs %s' % (
-                dirname, filename, self.get_command(
-                    dirname,
-                    linter_configs=linter_configs))
-            log.debug("cmd = %s", cmd)
-            result = self.executor(cmd)
-            for line in result.split('\n'):
-                output = self.process_line(dirname, line)
-                if output is not None:
-                    filename, lineno, messages = output
-                    if filename.startswith(dirname):
-                        filename = filename[len(dirname) + 1:]
-                    retval[filename][lineno].append(messages)
+
+        cmd = '%s %s' % (self.get_command(
+            dirname, linter_configs=linter_configs), dirname)
+        log.debug("cmd = %s", cmd)
+        result = self.executor(cmd)
+        for line in result.split('\n'):
+            output = self.process_line(dirname, line)
+            if output is not None:
+                filename, lineno, messages = output
+                if filename.startswith(dirname):
+                    filename = filename[len(dirname) + 1:]
+                retval[filename][lineno].append(messages)
         return retval
