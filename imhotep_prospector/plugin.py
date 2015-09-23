@@ -6,8 +6,6 @@ import logging
 log = logging.getLogger(__name__)
 
 
-root = logging.getLogger()
-root.setLevel(logging.DEBUG)
 
 OUTPUT_STYLE_PYLINT = "pylint"
 OUTPUT_STYLE_PROSPECTOR = "prospector"
